@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Learning Hub Companion",
+  "version": "1.0.0",
+  "description": "Capture content and enable Learning Mode for your personal learning companion",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "contextMenus",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Learning Hub"
+  },
+  "options_page": "options.html"
+}

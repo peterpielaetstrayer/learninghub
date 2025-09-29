@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 400px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+    }
+    
+    h1 {
+      font-size: 20px;
+      margin: 0 0 20px 0;
+      color: #1f2937;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .button {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    
+    .button:hover {
+      opacity: 0.9;
+    }
+    
+    .button.secondary {
+      background: #6b7280;
+    }
+    
+    .help-text {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    
+    .status {
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+  </style>
+</head>
+<body>
+  <h1>Learning Hub Settings</h1>
+  
+  <form id="settingsForm">
+    <div class="form-group">
+      <label for="apiBaseUrl">API Base URL</label>
+      <input type="text" id="apiBaseUrl" value="http://localhost:3000">
+      <div class="help-text">The URL where your Learning Hub app is running</div>
+    </div>
+    
+    <div class="form-group">
+      <label for="learningModeInterval">Learning Mode Interval (seconds)</label>
+      <input type="number" id="learningModeInterval" value="10" min="5" max="300">
+      <div class="help-text">How often to analyze page content when Learning Mode is active</div>
+    </div>
+    
+    <div class="form-group">
+      <label for="maxContentLength">Max Content Length</label>
+      <input type="number" id="maxContentLength" value="5000" min="1000" max="20000">
+      <div class="help-text">Maximum characters to send for analysis</div>
+    </div>
+    
+    <button type="submit" class="button">Save Settings</button>
+    <button type="button" id="resetButton" class="button secondary">Reset to Defaults</button>
+  </form>
+  
+  <div id="status" class="status"></div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
