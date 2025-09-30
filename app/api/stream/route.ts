@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWebSocketServer } from '@/lib/ws';
 
 export async function GET(request: NextRequest) {
   try {
-    const io = getWebSocketServer();
-    
-    if (!io) {
-      return NextResponse.json(
-        { error: 'WebSocket server not initialized' },
-        { status: 500 }
-      );
-    }
-
-    // Return WebSocket connection info
+    // For now, return a simple status without WebSocket
+    // WebSocket will be added later when needed
     return NextResponse.json({
-      connected: true,
-      clients: io.engine.clientsCount,
+      connected: false,
+      message: 'WebSocket not available in standard Next.js mode',
+      clients: 0,
     });
   } catch (error) {
     console.error('Error getting WebSocket status:', error);

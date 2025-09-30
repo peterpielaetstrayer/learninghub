@@ -9,6 +9,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Disable PWA features that might be causing issues
+  generateEtags: false,
+  poweredByHeader: false,
 }
 
 export default nextConfig
