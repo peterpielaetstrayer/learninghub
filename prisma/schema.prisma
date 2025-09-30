@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Subscription fields
+  subscriptionId     String?
+  subscriptionStatus String? // active, canceled, past_due, etc.
+  subscriptionPlan   String? // free, pro, enterprise
+  subscriptionEndsAt DateTime?
+  stripeCustomerId   String? @unique
+  stripeSubscriptionId String? @unique
+
+  // Usage tracking
+  itemsCount      Int @default(0)
+  cardsCount      Int @default(0)
+  lastProcessedAt DateTime?
+
+  // User preferences
+  theme          String @default("system")
+  highContrast   Boolean @default(false)
+  voiceEnabled   Boolean @default(false)
+  goals          Json?   @default("{}")
+
+  // Relations
+  accounts Account[]
+  sessions Session[]
+  items    Item[]
+  verifications VerificationRequest[]
+}
+
+model VerificationRequest {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User? @relation(fields: [identifier], references: [email])
+}
+
+// Learning Hub specific models
+model Item {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  url            String?
+  title          String?
+  rawText        String?  @map("raw_text") @db.Text
+  rawImagePath   String?  @map("raw_image_path")
+  source         String?
+  processed      Boolean  @default(false)
+  processingAt   DateTime?
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  aiOutputs AIOutput[]
+  cards     Card[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AIOutput {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  modelName String   @map("model_name")
+  summary   String?  @db.Text
+  tags      String?
+  srs       String?  @db.Text
+
+  // Relations
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+}
+
+model Card {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  front     String   @db.Text
+  back      String   @db.Text
+  tags      String?
+  difficulty Int?    @default(1) // 1-5 scale
+  lastReviewed DateTime?
+  nextReview DateTime?
+  reviewCount Int    @default(0)
+  correctCount Int   @default(0)
+
+  // Relations
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([nextReview])
+}
+
+// Subscription plans and limits
+model SubscriptionPlan {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  displayName String
+  description String?
+  price       Int     // in cents
+  interval    String  // month, year
+  features    Json    // array of features
+  limits      Json    // usage limits
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+}
+
+// Usage tracking for billing
+model UsageRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime @default(now())
+  itemsCount Int     @default(0)
+  cardsCount Int     @default(0)
+  aiRequests Int     @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// Billing and payment records
+model BillingRecord {
+  id                String   @id @default(cuid())
+  userId            String
+  stripeInvoiceId   String?  @unique
+  amount            Int      // in cents
+  currency          String   @default("usd")
+  status            String   // paid, pending, failed
+  description       String?
+  createdAt         DateTime @default(now())
+  paidAt            DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
